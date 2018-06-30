@@ -52,10 +52,16 @@ colourArray = colourArray.map(colour =>
 
 var ballColour = colourArray[0];
 
+// paddle
+
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width - paddleWidth) /2
+
 
 // rendering engine
 function draw() {
-    // drawing code
+    // ball drawing code
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
     ctx.arc(x, y, rad, 0, Math.PI*2);
@@ -65,7 +71,28 @@ function draw() {
     [x,y,dx,dy, ballColour] = moveXY(x,y,dx,dy);
     //console.log(x,y);
     // console.log(rightPressed);
+
+    drawPaddle();
 }
+
+function drawPaddle() {
+    // drawing code
+
+    movePaddle();
+
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height - paddleHeight*2, paddleWidth, paddleHeight);
+    ctx.fillStyle = ballColour;
+    ctx.fill();
+    ctx.closePath();
+}
+
+
+movePaddle = () => {
+    rightPressed && paddleX < canvas.width - paddleWidth ? paddleX += 10: null;
+    leftPressed && paddleX > 0 ? paddleX -= 10: null;
+}
+
 
 // ball movement and collision detection
 moveXY = (x,y, dx, dy) => {
