@@ -28,11 +28,9 @@ ctx.closePath();
 var rightPressed = false;
 var leftPressed = false;
 
-
-
 // game physical constants
-var dx = 1;
-var dy = 1;
+var dx = 0.5;
+var dy = -0.5;
 
 var x = canvas.width/2;
 var y = canvas.height-30;
@@ -53,11 +51,12 @@ colourArray = colourArray.map(colour =>
 var ballColour = colourArray[0];
 
 // paddle
-
 var paddleHeight = 10;
 var paddleWidth = 75;
 var paddleX = (canvas.width - paddleWidth) /2
 
+// game state
+var GAME_OVER = false;
 
 // rendering engine
 function draw() {
@@ -68,12 +67,12 @@ function draw() {
     ctx.fillStyle = ballColour;
     ctx.fill();
     ctx.closePath();
+
     [x,y,dx,dy, ballColour] = moveXY(x,y,dx,dy);
-    //console.log(x,y);
-    // console.log(rightPressed);
 
     drawPaddle();
 }
+
 
 function drawPaddle() {
     // drawing code
@@ -99,8 +98,13 @@ moveXY = (x,y, dx, dy) => {
     x+rad > canvas.width ? [dx, ballColour] = hitWall(dx) : null;
     x-rad < 0            ? [dx, ballColour] = hitWall(dx) : null;
 
-    y+rad > canvas.height ? [dy, ballColour] = hitWall(dy) : null;
     y-rad < 0             ? [dy, ballColour] = hitWall(dy) : null;
+    if( y+rad > canvas.height) {
+        alert("GAME OVER");
+        clearInterval(runGame);
+        GAME_OVER = true;
+        document.location.reload();
+    }
 
     return [x+dx, y+dy, dx, dy, ballColour];
 }
@@ -109,8 +113,6 @@ hitWall = (dw) => {
     ballColour = colourArray[Math.floor(Math.random()*colourArray.length)];
     return [-dw, ballColour];
 }
-
-
 
 
 // keyboard controls
@@ -125,8 +127,7 @@ keyUpHandler = (e) => {
 }
 
 
-setInterval(draw,10);
+var runGame = setInterval(draw,1);
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
-
