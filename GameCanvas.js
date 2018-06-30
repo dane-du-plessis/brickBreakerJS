@@ -29,13 +29,14 @@ var rightPressed = false;
 var leftPressed = false;
 
 // game physical constants
-var dx = 0.5;
-var dy = -0.5;
+const STEP_SIZE = 0.5;
+var dx = STEP_SIZE;
+var dy = -STEP_SIZE;
 
 var x = canvas.width/2;
-var y = canvas.height-30;
+var y = canvas.height-50;
 
-var rad = 10;
+var ballRadius = 5;
 
 random16bitHexStr = () => {
     let v = Math.floor(Math.random()*256).toString(16);
@@ -63,7 +64,7 @@ function draw() {
     // ball drawing code
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
-    ctx.arc(x, y, rad, 0, Math.PI*2);
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
     ctx.fillStyle = ballColour;
     ctx.fill();
     ctx.closePath();
@@ -88,18 +89,32 @@ function drawPaddle() {
 
 
 movePaddle = () => {
-    rightPressed && paddleX < canvas.width - paddleWidth ? paddleX += 10: null;
-    leftPressed && paddleX > 0 ? paddleX -= 10: null;
+    rightPressed && paddleX < canvas.width - paddleWidth ? paddleX += 4*STEP_SIZE: null;
+    leftPressed && paddleX > 0 ? paddleX -= 4*STEP_SIZE: null;
 }
 
 
 // ball movement and collision detection
 moveXY = (x,y, dx, dy) => {
-    x+rad > canvas.width ? [dx, ballColour] = hitWall(dx) : null;
-    x-rad < 0            ? [dx, ballColour] = hitWall(dx) : null;
+    // hitting sides
+    x+ballRadius > canvas.width ? [dx, ballColour] = hitFlatSurface(dx) : null;
+    x-ballRadius < 0            ? [dx, ballColour] = hitFlatSurface(dx) : null;
 
-    y-rad < 0             ? [dy, ballColour] = hitWall(dy) : null;
-    if( y+rad > canvas.height) {
+    // hitting ceiling
+    y-ballRadius < 0            ? [dy, ballColour] = hitFlatSurface(dy) : null;
+
+    // hittling paddle's flat top surface
+    if(x >= paddleX && x <= paddleX + paddleWidth) {
+        if(y >= canvas.height - paddleHeight*2 - ballRadius) {
+            [dy, ballColour] = hitFlatSurface(dy);
+        }
+    }
+    
+    // Hitting paddle's corners or vertical edges
+    //TODO - fancier collision detection
+
+    // hitting floor = GAME OVER!
+    if( y+ballRadius > canvas.height) {
         alert("GAME OVER");
         clearInterval(runGame);
         GAME_OVER = true;
@@ -109,7 +124,7 @@ moveXY = (x,y, dx, dy) => {
     return [x+dx, y+dy, dx, dy, ballColour];
 }
 
-hitWall = (dw) => {
+hitFlatSurface = (dw) => {
     ballColour = colourArray[Math.floor(Math.random()*colourArray.length)];
     return [-dw, ballColour];
 }
@@ -126,8 +141,10 @@ keyUpHandler = (e) => {
     e.keyCode == 37 ? leftPressed = false : null;
 }
 
-
+// start animating
 var runGame = setInterval(draw,1);
 
+
+// add event listeners for buttons
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
