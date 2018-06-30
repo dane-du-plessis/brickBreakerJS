@@ -24,36 +24,56 @@ ctx.stroke();
 ctx.closePath();
 */
 
-var dx = 2;
-var dy = 2;
+var dx = 1;
+var dy = 1;
 
 var x = canvas.width/2;
 var y = canvas.height-30;
 
 var rad = 10;
 
+random16bitHexStr = () => {
+    let v = Math.floor(Math.random()*256).toString(16);
+    v.length < 2 ? v = "0" + v : v = v;
+    return v;
+}
+
+var colourArray = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+colourArray = colourArray.map(colour => 
+    "#" + random16bitHexStr() + random16bitHexStr() + random16bitHexStr()
+);
+
+
+
+var ballColour = colourArray[0];
+
 function draw() {
     // drawing code
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
     ctx.arc(x, y, rad, 0, Math.PI*2);
-    ctx.fillStyle = "green";
+    ctx.fillStyle = ballColour;
     ctx.fill();
     ctx.closePath();
-    [x,y,dx,dy] = moveXY(x,y,dx,dy);
+    [x,y,dx,dy, ballColour] = moveXY(x,y,dx,dy);
     console.log(x,y);
 }
 
 moveXY = (x,y, dx, dy) => {
-    // ball touching right side?
-    x+rad > canvas.width ? dx = -dx : null;
-    x-rad < 0            ? dx = -dx : null;
+    x+rad > canvas.width ? [dx, ballColour] = hitWall(dx) : null;
+    x-rad < 0            ? [dx, ballColour] = hitWall(dx) : null;
 
-    // Top/bottom touch?
-    y+rad < canvas.height ? dy = -dy : null;
-    y-rad > 0             ? dy = -dy : null;
+    y+rad > canvas.height ? [dy, ballColour] = hitWall(dy) : null;
+    y-rad < 0             ? [dy, ballColour] = hitWall(dy) : null;
 
-    return [x+dx, y+dy, dx, dy];
+    return [x+dx, y+dy, dx, dy, ballColour];
 }
 
-setInterval(draw,5);
+hitWall = (dw) => {
+    ballColour = colourArray[Math.floor(Math.random()*colourArray.length)];
+    return [-dw, ballColour];
+}
+
+
+
+setInterval(draw,10);
