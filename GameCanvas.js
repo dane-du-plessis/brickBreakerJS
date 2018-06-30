@@ -33,11 +33,17 @@ const STEP_SIZE = 0.5;
 var dx = STEP_SIZE;
 var dy = -STEP_SIZE;
 
+// ball radius
+var ballRadius = 15;
 var x = canvas.width/2;
-var y = canvas.height-50;
+var y = canvas.height-ballRadius*3;
 
-var ballRadius = 5;
+// paddle dimensions
+var paddleHeight = ballRadius*2;
+var paddleWidth = 75;
+var paddleX = (canvas.width - paddleWidth) /2
 
+// some funky colours
 random16bitHexStr = () => {
     let v = Math.floor(Math.random()*256).toString(16);
     v.length < 2 ? v = "0" + v : v = v;
@@ -51,10 +57,6 @@ colourArray = colourArray.map(colour =>
 
 var ballColour = colourArray[0];
 
-// paddle
-var paddleHeight = 10;
-var paddleWidth = 75;
-var paddleX = (canvas.width - paddleWidth) /2
 
 // game state
 var GAME_OVER = false;
@@ -76,17 +78,13 @@ function draw() {
 
 
 function drawPaddle() {
-    // drawing code
-
     movePaddle();
-
     ctx.beginPath();
     ctx.rect(paddleX, canvas.height - paddleHeight*2, paddleWidth, paddleHeight);
     ctx.fillStyle = ballColour;
     ctx.fill();
     ctx.closePath();
 }
-
 
 movePaddle = () => {
     rightPressed && paddleX < canvas.width - paddleWidth ? paddleX += 4*STEP_SIZE: null;
@@ -104,8 +102,12 @@ moveXY = (x,y, dx, dy) => {
     y-ballRadius < 0            ? [dy, ballColour] = hitFlatSurface(dy) : null;
 
     // hittling paddle's flat top surface
-    if(x >= paddleX && x <= paddleX + paddleWidth) {
-        if(y >= canvas.height - paddleHeight*2 - ballRadius) {
+    let edge = 1;
+    if( y > canvas.height - paddleHeight*2 - ballRadius
+            &&
+        y < canvas.height - paddleHeight*2 - ballRadius + edge) {
+        if(x >= paddleX && x <= paddleX + paddleWidth) {
+            y -= edge*2; // this prevents the ball from bouncing up and down along the paddle surface
             [dy, ballColour] = hitFlatSurface(dy);
         }
     }
@@ -143,7 +145,6 @@ keyUpHandler = (e) => {
 
 // start animating
 var runGame = setInterval(draw,1);
-
 
 // add event listeners for buttons
 document.addEventListener("keydown", keyDownHandler, false);
