@@ -1,6 +1,6 @@
 // JavaScript code goes here
 
-console.log(";asdlfkj;lsdfj;s");
+console.log("Start...");
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
@@ -24,6 +24,13 @@ ctx.stroke();
 ctx.closePath();
 */
 
+// control variables
+var rightPressed = false;
+var leftPressed = false;
+
+
+
+// game physical constants
 var dx = 1;
 var dy = 1;
 
@@ -43,10 +50,10 @@ colourArray = colourArray.map(colour =>
     "#" + random16bitHexStr() + random16bitHexStr() + random16bitHexStr()
 );
 
-
-
 var ballColour = colourArray[0];
 
+
+// rendering engine
 function draw() {
     // drawing code
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -56,9 +63,11 @@ function draw() {
     ctx.fill();
     ctx.closePath();
     [x,y,dx,dy, ballColour] = moveXY(x,y,dx,dy);
-    console.log(x,y);
+    //console.log(x,y);
+    // console.log(rightPressed);
 }
 
+// ball movement and collision detection
 moveXY = (x,y, dx, dy) => {
     x+rad > canvas.width ? [dx, ballColour] = hitWall(dx) : null;
     x-rad < 0            ? [dx, ballColour] = hitWall(dx) : null;
@@ -76,4 +85,21 @@ hitWall = (dw) => {
 
 
 
+
+// keyboard controls
+keyDownHandler = (e) => {
+    e.keyCode == 39 ? rightPressed = true : null;
+    e.keyCode == 37 ? leftPressed = true : null;
+}
+
+keyUpHandler = (e) => {
+    e.keyCode == 39 ? rightPressed = false : null;
+    e.keyCode == 37 ? leftPressed = false : null;
+}
+
+
 setInterval(draw,10);
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
