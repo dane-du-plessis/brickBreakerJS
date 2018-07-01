@@ -7,7 +7,7 @@ var rightPressed = false;
 var leftPressed = false;
 
 // game physical constants
-const STEP_SIZE = 0.5;
+const STEP_SIZE = 2;
 var dx = STEP_SIZE;
 var dy = -STEP_SIZE;
 
@@ -72,14 +72,14 @@ function draw() {
     drawScore();
     checkForWin();
     [x,y,dx,dy, ballColour] = moveXY(x,y,dx,dy);
-
+    requestAnimationFrame(draw);
 }
 
 function checkForWin() {
     PLAYER_SCORE == brickRowCount*brickColumnCount ?
     GAME_WIN = true: null;
     if(GAME_WIN) {
-        clearInterval(runGame);
+        // clearInterval(runGame);
         alert("You WON! Well done old chap!");
         document.location.reload();
     }
@@ -113,6 +113,25 @@ function drawPaddle() {
     ctx.fillStyle = ballColour;
     ctx.fill();
     ctx.closePath();
+
+    //add rounded side to left of paddle
+    ctx.beginPath();
+    ctx.arc(paddleX, 
+            canvas.height - paddleHeight*1.5, 
+            paddleHeight/2, 
+            Math.PI/2, Math.PI*3/2);
+    ctx.fillStyle = ballColour;
+    ctx.fill();
+    ctx.closePath();
+    //add rounded side to right of paddle
+    ctx.beginPath();
+    ctx.arc(paddleX+paddleWidth,
+            canvas.height - paddleHeight*1.5, 
+            paddleHeight/2, 
+            Math.PI*3/2, Math.PI/2);
+    ctx.fillStyle = ballColour;
+    ctx.fill();
+    ctx.closePath();
 }
 
 movePaddle = () => {
@@ -131,22 +150,19 @@ moveXY = (x,y, dx, dy) => {
     y-ballRadius < 0            ? [dy, ballColour] = hitFlatSurface(dy) : null;
 
     // hittling paddle's flat top surface
-    let edge = 1;
-    if( y > canvas.height - paddleHeight*2 - ballRadius
-            &&
-        y < canvas.height - paddleHeight*2 - ballRadius + edge) {
+    if( y > canvas.height - paddleHeight*2 - ballRadius) {
         if(x >= paddleX && x <= paddleX + paddleWidth) {
-            y -= edge*2; // this prevents the ball from bouncing up and down along the paddle surface
+            y = canvas.height - paddleHeight*2 - ballRadius;
             [dy, ballColour] = hitFlatSurface(dy);
         }
     }
     
-    // Hitting paddle's corners or vertical edges
-    //TODO - fancier collision detection
+    // Hitting paddle's rounded sides
+    detectEdgeHit();
 
     // hitting floor = GAME OVER!
     if( y+ballRadius > canvas.height) {
-        clearInterval(runGame);
+        // clearInterval(runGame);
         alert("GAME OVER");
         GAME_OVER = true;
         document.location.reload();
@@ -156,6 +172,31 @@ moveXY = (x,y, dx, dy) => {
     dy = brickCollisionDetection(dy);
 
     return [x+dx, y+dy, dx, dy, ballColour];
+}
+
+function detectEdgeHit() {
+    // the left and right centers of curvature of the paddle
+    xL = paddleX;
+    xR = paddleX + paddleWidth;
+    yL = canvas.height - paddleHeight*1.5;
+    yR = yL;
+
+    // test for collisions on left side
+    if(x < paddleX) {
+        console.log("searching left...");
+        if( ( x - xL )**2 + ( y - yL )**2 < (ballRadius + paddleHeight/2)**2 ) {
+            // alert("We've been hit captain!");
+
+        }
+    }
+    // test for collisions on left side
+    else if(x > paddleX + paddleWidth) {
+            console.log("searching right...");
+            if( ( x - xR )**2 + ( y - yR )**2 < (ballRadius + paddleHeight/2)**2 ) {
+                // alert("We've been hit captain!");
+                
+            }
+        }
 }
 
 hitFlatSurface = (dw) => {
@@ -196,7 +237,8 @@ keyUpHandler = (e) => {
 }
 
 // start animating
-var runGame = setInterval(draw,1);
+// var runGame = setInterval(draw,1);
+draw();
 
 // add event listeners for buttons
 document.addEventListener("keydown", keyDownHandler, false);
