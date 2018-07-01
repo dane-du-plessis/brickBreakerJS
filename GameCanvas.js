@@ -34,7 +34,7 @@ var bricks = [];
 for(var c = 0; c < brickColumnCount; c++) {
     bricks[c] = [];
     for(var r = 0; r < brickRowCount; r++) {
-        bricks[c][r] = {x: 0, y: 0};
+        bricks[c][r] = {x: 0, y: 0, hitpoints: 1};
     }
 }
 
@@ -81,11 +81,14 @@ function drawBricks() {
 
             bricks[c][r].x = xb;
             bricks[c][r].y = yb;
-            ctx.beginPath();
-            ctx.rect(xb,yb, brickWidth, brickHeight);
-            ctx.fillStyle = "#0095DD";
-            ctx.fill();
-            ctx.closePath();
+
+            if(bricks[c][r].hitpoints) {
+                ctx.beginPath();
+                ctx.rect(xb,yb, brickWidth, brickHeight);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
         }
     }
 }
@@ -151,9 +154,10 @@ brickCollisionDetection = (dy) => {
     //console.log("checking brick collisions");
     bricks.forEach(c => {
         c.forEach(r =>{
+            r.hitpoints > 0 &&
             r.x < x && x < r.x + brickWidth &&
             r.y < y && y < r.y + brickHeight
-            ? dy = -dy
+            ? (dy = -dy, r.hitpoints--)
             : null;
         })
     })
