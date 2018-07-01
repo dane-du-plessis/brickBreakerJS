@@ -65,11 +65,11 @@ function draw() {
     ctx.fillStyle = ballColour;
     ctx.fill();
     ctx.closePath();
+    drawBricks();
+    drawPaddle();
 
     [x,y,dx,dy, ballColour] = moveXY(x,y,dx,dy);
 
-    drawBricks();
-    drawPaddle();
 }
 
 
@@ -136,12 +136,28 @@ moveXY = (x,y, dx, dy) => {
         document.location.reload();
     }
 
+    // hitting a brick
+    dy = brickCollisionDetection(dy);
+
     return [x+dx, y+dy, dx, dy, ballColour];
 }
 
 hitFlatSurface = (dw) => {
     ballColour = colourArray[Math.floor(Math.random()*colourArray.length)];
     return [-dw, ballColour];
+}
+
+brickCollisionDetection = (dy) => {
+    //console.log("checking brick collisions");
+    bricks.forEach(c => {
+        c.forEach(r =>{
+            r.x < x && x < r.x + brickWidth &&
+            r.y < y && y < r.y + brickHeight
+            ? dy = -dy
+            : null;
+        })
+    })
+    return dy;
 }
 
 
