@@ -55,6 +55,8 @@ var ballColour = colourArray[0];
 
 // game state
 var GAME_OVER = false;
+var GAME_WIN  = false;
+var PLAYER_SCORE = 0;
 
 // rendering engine
 function draw() {
@@ -67,11 +69,21 @@ function draw() {
     ctx.closePath();
     drawBricks();
     drawPaddle();
-
+    drawScore();
+    checkForWin();
     [x,y,dx,dy, ballColour] = moveXY(x,y,dx,dy);
 
 }
 
+function checkForWin() {
+    PLAYER_SCORE == brickRowCount*brickColumnCount ?
+    GAME_WIN = true: null;
+    if(GAME_WIN) {
+        console.log("You WON! Well done old chap!");
+        document.location.reload();
+    }
+    
+}
 
 function drawBricks() {
     for(var c = 0; c < brickColumnCount; c++) {
@@ -157,11 +169,17 @@ brickCollisionDetection = (dy) => {
             r.hitpoints > 0 &&
             r.x < x && x < r.x + brickWidth &&
             r.y < y && y < r.y + brickHeight
-            ? (dy = -dy, r.hitpoints--)
+            ? (dy = -dy, r.hitpoints--, PLAYER_SCORE++)
             : null;
         })
     })
     return dy;
+}
+
+function drawScore() {
+    ctx.font = "16px Courier";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Score: "+PLAYER_SCORE, 8, 20);
 }
 
 
