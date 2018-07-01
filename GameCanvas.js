@@ -7,9 +7,9 @@ var rightPressed = false;
 var leftPressed = false;
 
 // game physical constants
-const STEP_SIZE = 2;
-var dx = STEP_SIZE;
-var dy = -STEP_SIZE;
+const VELOCITY = 3;
+var dx = VELOCITY;
+var dy = -VELOCITY;
 
 // ball radius
 var ballRadius = 15;
@@ -135,8 +135,8 @@ function drawPaddle() {
 }
 
 movePaddle = () => {
-    rightPressed && paddleX < canvas.width - paddleWidth ? paddleX += 4*STEP_SIZE: null;
-    leftPressed && paddleX > 0 ? paddleX -= 4*STEP_SIZE: null;
+    rightPressed && paddleX < canvas.width - paddleWidth ? paddleX += 4*VELOCITY: null;
+    leftPressed && paddleX > 0 ? paddleX -= 4*VELOCITY: null;
 }
 
 
@@ -175,29 +175,64 @@ moveXY = (x,y, dx, dy) => {
 }
 
 function detectEdgeHit() {
+    // see https://en.wikipedia.org/wiki/Rotation_of_axes
+    // see https://en.wikipedia.org/wiki/Rotation_matrix
     // the left and right centers of curvature of the paddle
-    xL = paddleX;
-    xR = paddleX + paddleWidth;
-    yL = canvas.height - paddleHeight*1.5;
-    yR = yL;
+    let xL = paddleX;
+    let xR = paddleX + paddleWidth;
+    let yL = canvas.height - paddleHeight*1.5;
+    let yR = yL;
+    let deltaXLeft = x - xL;
+    let deltaYLeft = y - yL;
+
+    let deltaXRight = x - xR;
+    let deltaYRight = y - yR;
 
     // test for collisions on left side
     if(x < paddleX) {
         console.log("searching left...");
-        if( ( x - xL )**2 + ( y - yL )**2 < (ballRadius + paddleHeight/2)**2 ) {
+        if( deltaXLeft**2 + deltaYLeft**2 < (ballRadius + paddleHeight/2)**2 ) {
             // alert("We've been hit captain!");
-
+            // find x' and y' axes
         }
     }
-    // test for collisions on left side
-    else if(x > paddleX + paddleWidth) {
-            console.log("searching right...");
-            if( ( x - xR )**2 + ( y - yR )**2 < (ballRadius + paddleHeight/2)**2 ) {
-                // alert("We've been hit captain!");
-                
-            }
+    // test for collisions on right side
+    else 
+    if(x > paddleX + paddleWidth) {
+        console.log("searching right...");
+        if( deltaXRight**2 + deltaYRight**2 < (ballRadius + paddleHeight/2)**2 ) {
+            let theta = Math.atan(deltaYRight, deltaXRight);
+            console.log("DEGREE HIT:" + theta/Math.PI*180);
+            [dx,dy] = transformDxDy(theta);
+            alert("DEGREE HIT:" + theta/Math.PI*180);
         }
+    }
 }
+
+function transformDxDy(theta) {
+    // find angle between center of mass of ball and collision point
+    let cosTheta = Math.cos(theta);
+    let sinTheta = Math.sin(theta);
+
+    console.log("dx  = " + dx);
+    console.log("dy  = " + dy);
+
+    // find ball velocity in the rotated coordinate system
+    let dx_prime = dx*cosTheta - dy*sinTheta;
+    let dy_prime = dx*sinTheta + dy*cosTheta;
+
+    // reflect velocity vector about the x_prime axis
+    dx_prime = -dx_prime;
+
+    // transform back to the original coordinates
+    dx =  dx_prime*cosTheta + dy_prime*sinTheta;
+    dy = -dx_prime*sinTheta + dy_prime*cosTheta;
+
+    console.log("dx_ = " + dx);
+    console.log("dy_ = " + dy);
+    return [dx, dy];
+}
+
 
 hitFlatSurface = (dw) => {
     ballColour = colourArray[Math.floor(Math.random()*colourArray.length)];
