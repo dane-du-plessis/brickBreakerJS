@@ -79,7 +79,8 @@ function checkForWin() {
     PLAYER_SCORE == brickRowCount*brickColumnCount ?
     GAME_WIN = true: null;
     if(GAME_WIN) {
-        console.log("You WON! Well done old chap!");
+        clearInterval(runGame);
+        alert("You WON! Well done old chap!");
         document.location.reload();
     }
     
@@ -145,8 +146,8 @@ moveXY = (x,y, dx, dy) => {
 
     // hitting floor = GAME OVER!
     if( y+ballRadius > canvas.height) {
-        alert("GAME OVER");
         clearInterval(runGame);
+        alert("GAME OVER");
         GAME_OVER = true;
         document.location.reload();
     }
