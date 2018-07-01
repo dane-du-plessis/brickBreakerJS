@@ -1,28 +1,6 @@
-// JavaScript code goes here
-
 console.log("Start...");
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-
-/*
-ctx.beginPath();
-ctx.rect(20,40,50,50);
-ctx.fillStyle = "#FF0000";
-ctx.fill();
-ctx.closePath();
-
-ctx.beginPath();
-ctx.arc(240, 160, 20, 0, Math.PI*2, false);
-ctx.fillStyle = "green";
-ctx.fill();
-ctx.closePath();
-
-ctx.beginPath();
-ctx.rect(160, 10, 100, 40);
-ctx.strokeStyle = "rgba(0, 0, 255, 0.5)";
-ctx.stroke();
-ctx.closePath();
-*/
 
 // control variables
 var rightPressed = false;
@@ -42,6 +20,23 @@ var y = canvas.height-ballRadius*3;
 var paddleHeight = ballRadius*2;
 var paddleWidth = 75;
 var paddleX = (canvas.width - paddleWidth) /2
+
+// brick variables
+var brickRowCount = 2;
+var brickColumnCount = 5
+var brickWidth = 75;
+var brickHeight = 20;
+var brickPadding = 10;
+var brickOffsetTop = 30;
+var brickOffsetLeft = 30;
+
+var bricks = [];
+for(var c = 0; c < brickColumnCount; c++) {
+    bricks[c] = [];
+    for(var r = 0; r < brickRowCount; r++) {
+        bricks[c][r] = {x: 0, y: 0};
+    }
+}
 
 // some funky colours
 random16bitHexStr = () => {
@@ -73,9 +68,27 @@ function draw() {
 
     [x,y,dx,dy, ballColour] = moveXY(x,y,dx,dy);
 
+    drawBricks();
     drawPaddle();
 }
 
+
+function drawBricks() {
+    for(var c = 0; c < brickColumnCount; c++) {
+        for(var r = 0; r < brickRowCount; r++) {
+            var xb = brickOffsetLeft + c * (brickWidth  + brickPadding);
+            var yb = brickOffsetTop  + r * (brickHeight + brickPadding);
+
+            bricks[c][r].x = xb;
+            bricks[c][r].y = yb;
+            ctx.beginPath();
+            ctx.rect(xb,yb, brickWidth, brickHeight);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+}
 
 function drawPaddle() {
     movePaddle();
